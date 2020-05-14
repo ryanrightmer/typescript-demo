@@ -2,8 +2,10 @@ import { CmsSimpleHero, CmsLink, CmsImage, CmsCard, CmsSimpleContent } from "./c
 
 export interface CmsResult {
   contentType: string;
-  content: CmsHomePage;
+  content: CMSPages;
 }
+
+export type CMSPages = CmsHomePage | CmsSimplePage;
 
 export interface CmsHomePage {
   pageTitle: string;
@@ -20,4 +22,12 @@ export interface CmsHomePage {
   contactSectionSubHeaderText: string;
   contactSectionContentLeft: CmsCard;
   contactSectionContentRight: CmsCard;
+}
+
+
+export interface CmsSimplePage {
+  pageTitle: string;
+  sourceId: string;
+  hero: CmsSimpleHero;
+  content: CmsSimpleContent;
 }

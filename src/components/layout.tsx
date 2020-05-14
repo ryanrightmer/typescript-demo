@@ -1,29 +1,45 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, ReactElement } from 'react';
 import { useLocation } from 'react-router-dom';
-import { CmsHomePage, CmsResult } from '../types/pages';
+import { CmsHomePage, CmsResult, CmsSimplePage } from '../types/pages';
 import HomePage from '../templates/homepage';
+import SimplePage from '../templates/simplepage';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchByPath } from '../store/pages';
+import { RootState } from '../store/store';
 
 const Layout: React.FC = () => {
-
-  // We need to figure out the typing for the useState
-  const [pageData, setPageData] = useState<CmsResult>();
+  const dispatch = useDispatch();
 
   let location = useLocation();
+
+  const pageData = useSelector<RootState, CmsResult>(state => state.pages.pages[location.pathname]);
 
   // fetch and store data from https://cpwebapi.brighthealthplan.com/api/v0/content/page?path=${path}
   useEffect(() => {
     const fetchData = async () => {
-      var response = await axios.get<CmsResult>(`https://localhost:5001/api/v0/content/page?path=${location.pathname}`);
-      setPageData(response.data);
+      await dispatch(fetchByPath(location.pathname));
     };
  
     fetchData();
-  }, [location.pathname]);
+  }, [dispatch, location.pathname]);
 
+
+  let page: ReactElement | null = null;
+
+  if (pageData) {
+    switch (pageData.contentType) {
+      case "brightPlansHomepage":
+        page = <HomePage pageData={pageData.content as CmsHomePage} />
+        break;
+      case "templateSimplePage":
+        page = <SimplePage pageData={pageData.content as CmsSimplePage} />
+        break;
+    }
+  }
+  
   return (
     <>
-      {pageData ? <HomePage pageData={pageData.content} /> : null}
+      {page}
     </>
   )
 }
